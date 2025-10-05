@@ -112,3 +112,110 @@ SHIPSY-ASSIGNMENT/
   updatedAt: Date
 }
 ```
+
+## 🎯 Key Features
+## Authentication & Security
+
+    JWT-based authentication
+
+    Password validation
+
+    Protected API routes
+
+    CORS configuration
+
+## Task Management
+
+    Create tasks with all required fields
+
+    Real-time efficiency calculation
+
+    Advanced filtering and search
+
+    Pagination with 8 items per page
+
+    Bulk operations support
+
+## User Experience
+
+    Responsive design
+
+    Loading states
+
+    Error handling
+
+    Form validation
+
+    Intuitive navigation
+
+## Data Management
+
+    MongoDB Atlas cloud database
+
+    Data validation with Mongoose
+
+    Efficient queries with indexing
+
+    Aggregate operations for statistics
+
+## 🔧 Deployment
+### Frontend (Vercel)
+
+    Framework: Vite
+
+    Build Command: npm run build
+
+    Output Directory: dist
+
+    Environment Variable: VITE_API_URL
+
+### Backend (Vercel)
+
+    Runtime: Node.js
+
+    Build Command: (None - direct execution)
+
+    Environment Variables: All backend config
+
+### Database (MongoDB Atlas)
+
+    Cloud: MongoDB Atlas
+
+    Cluster: Shared (Free tier)
+
+    Network Access: 0.0.0.0/0
+
+    Authentication: Database user with read/write permissions
+
+## 📊 Performance Optimizations
+
+    Pagination - Limits data transfer
+
+    Database Indexing - Faster queries
+
+    Rate Limiting - API protection
+
+    Efficient Components - React optimization
+
+    Caching - Browser caching for static assets
+
+## 🐛 Troubleshooting
+### Common Issues
+
+    Database Connection Failed
+
+        Check MongoDB Atlas network access
+
+        Verify connection string in environment variables
+
+    CORS Errors
+
+        Verify frontend URL in backend CORS configuration
+
+        Check environment variables
+
+    Build Failures
+
+        Check Node.js version compatibility
+
+        Verify all dependencies are installed
