@@ -84,6 +84,7 @@ function App() {
       
       {user ? (
         <TaskManager 
+          key={user.id} // This forces re-render when user changes
           user={user} 
           onLogout={handleLogout}
           onError={showError}
