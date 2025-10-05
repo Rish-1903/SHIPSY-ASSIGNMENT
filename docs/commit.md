@@ -17,3 +17,6 @@
 
 ## Commit-6
 ![Alt text](/images/Commit-6.png)
+
+## Commit-7
+![Alt text](/images/Commit-7.png)
