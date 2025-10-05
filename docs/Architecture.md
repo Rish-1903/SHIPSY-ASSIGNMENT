@@ -30,3 +30,40 @@
 ## 🗃️ Database Design
 ![Alt text](/images/DatabaseSchema.png)
 
+
+## 🔐 Security Architecture
+
+
+
+## ⚡ Performance Architecture
+
+### Frontend Optimization
+- React component optimization
+- Efficient re-rendering with proper state management
+- CSS optimization and minimal bundle size
+- Lazy loading potential
+
+### Backend Optimization
+- Database indexing for common queries
+- Pagination to limit response size
+- Efficient Mongoose queries
+- Proper error handling and logging
+
+### Deployment Optimization
+- Vercel edge network for fast delivery
+- MongoDB Atlas global clusters
+- Environment-based configuration
+
+## 🔄 API Architecture
+
+### RESTful Design
+- Resource-based endpoints
+- Proper HTTP methods (GET, POST, PUT, DELETE)
+- Consistent response format
+- Proper status codes
+
+### Error Handling
+- Structured error responses
+- Validation error details
+- Graceful degradation
+- Comprehensive logging
