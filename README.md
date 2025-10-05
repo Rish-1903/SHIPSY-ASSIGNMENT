@@ -202,19 +202,19 @@ SHIPSY-ASSIGNMENT/
 ## 🐛 Troubleshooting
 ### Common Issues
 
-    Database Connection Failed
+  Database Connection Failed
 
         Check MongoDB Atlas network access
 
         Verify connection string in environment variables
 
-    CORS Errors
+  CORS Errors
 
         Verify frontend URL in backend CORS configuration
 
         Check environment variables
 
-    Build Failures
+  Build Failures
 
         Check Node.js version compatibility
 
