@@ -45,19 +45,31 @@ function App() {
     }
   }
 
-  const handleLogin = (userData, token) => {
-    setUser(userData)
-    localStorage.setItem('token', token)
-    localStorage.setItem('user', JSON.stringify(userData))
-    setError('')
-  }
+const handleLogin = (userData, token) => {
+  setUser(userData);
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(userData));
+  // Clear ALL task-related localStorage
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('tasks') || key.includes('task')) {
+      localStorage.removeItem(key);
+    }
+  });
+  setError('');
+}
 
-  const handleLogout = () => {
-    setUser(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    setError('')
-  }
+const handleLogout = () => {
+  setUser(null);
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  // Clear ALL task-related localStorage
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('tasks') || key.includes('task')) {
+      localStorage.removeItem(key);
+    }
+  });
+  setError('');
+}
 
   const showError = (message) => {
     setError(message)
