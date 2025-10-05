@@ -5,36 +5,20 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 
-// Routes
-import authRoutes from './routes/auth.js';
-import taskRoutes from './routes/tasks.js';
-
 // Load env vars
 dotenv.config();
 
 const app = express();
 
-// Enhanced CORS configuration
+// CORS configuration
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'https://shipsy-assignment-nson.vercel.app',
-      'https://shipsy-assignment-five.vercel.app',
-      'https://shipsy-assignment-nson-9wj4udhxx-rishabh-dangs-projects.vercel.app'
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: [
+    'http://localhost:3000',
+    'https://shipsy-assignment-nson.vercel.app',
+    'https://shipsy-assignment-five.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
@@ -56,86 +40,82 @@ app.use(express.urlencoded({ extended: true }));
 const connectDB = async () => {
   try {
     console.log('🔗 Connecting to MongoDB Atlas...');
-    
     const conn = await mongoose.connect(process.env.MONGODB_URI);
-    
     console.log('✅ MongoDB Atlas Connected Successfully!');
-    console.log(`📊 Database: ${conn.connection.name}`);
-    
     return conn;
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error.message);
-    console.log('💡 Check your MongoDB Atlas connection string and network access');
     process.exit(1);
   }
 };
 
-// Test route
+// Test routes
 app.get('/', (req, res) => {
   res.json({ 
     message: '🚀 Task Manager API is running!',
     version: '1.0.0',
     environment: process.env.NODE_ENV,
-    database: mongoose.connection.readyState === 1 ? '✅ Connected' : '❌ Disconnected',
-    timestamp: new Date().toISOString()
+    database: mongoose.connection.readyState === 1 ? '✅ Connected' : '❌ Disconnected'
   });
 });
 
-// Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
+  res.json({ 
     status: 'OK', 
-    message: 'Task Manager API is running',
-    environment: process.env.NODE_ENV,
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    timestamp: new Date().toISOString()
+    message: 'API is healthy',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/tasks', taskRoutes);
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    success: true,
+    message: 'Test endpoint is working!'
+  });
+});
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error Stack:', err.stack);
+// Simple auth routes for testing
+app.post('/api/auth/register', (req, res) => {
+  const { username, email, password } = req.body;
   
-  if (err.name === 'ValidationError') {
-    const messages = Object.values(err.errors).map(val => val.message);
+  if (!username || !email || !password) {
     return res.status(400).json({
       success: false,
-      message: 'Validation Error',
-      errors: messages
+      message: 'Please provide username, email and password'
     });
   }
+
+  res.json({
+    success: true,
+    message: 'Registration successful',
+    token: 'jwt-test-token-' + Date.now(),
+    user: {
+      id: 'user-' + Date.now(),
+      username: username,
+      email: email
+    }
+  });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body;
   
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
+  if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: `${field} already exists`
-    });
-  }
-  
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token'
+      message: 'Please provide email and password'
     });
   }
 
-  // CORS errors
-  if (err.message === 'Not allowed by CORS') {
-    return res.status(403).json({
-      success: false,
-      message: 'CORS policy violation'
-    });
-  }
-
-  res.status(500).json({ 
-    success: false,
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'production' ? {} : err.message 
+  res.json({
+    success: true,
+    message: 'Login successful',
+    token: 'jwt-test-token-' + Date.now(),
+    user: {
+      id: 'user-12345',
+      username: 'testuser',
+      email: email
+    }
   });
 });
 
@@ -143,7 +123,7 @@ app.use((err, req, res, next) => {
 app.use('*', (req, res) => {
   res.status(404).json({ 
     success: false,
-    message: 'API endpoint not found' 
+    message: 'API endpoint not found: ' + req.originalUrl
   });
 });
 
@@ -153,9 +133,8 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB();
-    
     app.listen(PORT, () => {
-      console.log(`\n🎉 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+      console.log(`🎉 Server running on port ${PORT}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
