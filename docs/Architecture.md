@@ -32,8 +32,7 @@
 
 
 ## 🔐 Security Architecture
-
-
+![Alt text](/images/SecurityArch.png)
 
 ## ⚡ Performance Architecture
 
