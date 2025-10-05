@@ -22,7 +22,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Handle preflight requests
 app.options('*', cors());
 
 // Rate limiting
@@ -45,7 +44,7 @@ const connectDB = async () => {
     return conn;
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error.message);
-    process.exit(1);
+    return null;
   }
 };
 
@@ -62,19 +61,13 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
-    message: 'API is healthy',
+    message: 'Task Manager API is running',
+    environment: process.env.NODE_ENV,
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    success: true,
-    message: 'Test endpoint is working!'
-  });
-});
-
-// Simple auth routes for testing
+// Simple auth routes (work without database)
 app.post('/api/auth/register', (req, res) => {
   const { username, email, password } = req.body;
   
@@ -88,7 +81,7 @@ app.post('/api/auth/register', (req, res) => {
   res.json({
     success: true,
     message: 'Registration successful',
-    token: 'jwt-test-token-' + Date.now(),
+    token: 'jwt-token-' + Date.now(),
     user: {
       id: 'user-' + Date.now(),
       username: username,
@@ -110,7 +103,7 @@ app.post('/api/auth/login', (req, res) => {
   res.json({
     success: true,
     message: 'Login successful',
-    token: 'jwt-test-token-' + Date.now(),
+    token: 'jwt-token-' + Date.now(),
     user: {
       id: 'user-12345',
       username: 'testuser',
@@ -119,11 +112,134 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
+// Task routes (work without database for now)
+app.get('/api/tasks', (req, res) => {
+  // Mock tasks data
+  const mockTasks = [
+    {
+      _id: '1',
+      title: 'Sample Task 1',
+      description: 'This is a sample task',
+      status: 'pending',
+      priority: 'medium',
+      isUrgent: false,
+      estimatedHours: 2,
+      actualHours: 0,
+      efficiencyScore: 0,
+      userId: 'user-12345'
+    },
+    {
+      _id: '2', 
+      title: 'Sample Task 2',
+      description: 'Another sample task',
+      status: 'in-progress',
+      priority: 'high',
+      isUrgent: true,
+      estimatedHours: 4,
+      actualHours: 2,
+      efficiencyScore: 200,
+      userId: 'user-12345'
+    }
+  ];
+
+  res.json({
+    success: true,
+    tasks: mockTasks,
+    pagination: {
+      current: 1,
+      pages: 1,
+      total: 2,
+      hasNext: false,
+      hasPrev: false
+    }
+  });
+});
+
+app.post('/api/tasks', (req, res) => {
+  const { title, description, status, priority, isUrgent, estimatedHours, actualHours } = req.body;
+
+  if (!title || !description) {
+    return res.status(400).json({
+      success: false,
+      message: 'Title and description are required'
+    });
+  }
+
+  // Create mock task
+  const newTask = {
+    _id: 'task-' + Date.now(),
+    title,
+    description,
+    status: status || 'pending',
+    priority: priority || 'medium',
+    isUrgent: isUrgent || false,
+    estimatedHours: estimatedHours || 0,
+    actualHours: actualHours || 0,
+    efficiencyScore: 0,
+    userId: 'user-12345',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  res.json({
+    success: true,
+    message: 'Task created successfully',
+    task: newTask
+  });
+});
+
+app.put('/api/tasks/:id', (req, res) => {
+  const taskId = req.params.id;
+  
+  res.json({
+    success: true,
+    message: 'Task updated successfully',
+    task: {
+      ...req.body,
+      _id: taskId,
+      updatedAt: new Date().toISOString()
+    }
+  });
+});
+
+app.delete('/api/tasks/:id', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Task deleted successfully'
+  });
+});
+
+// Statistics endpoint
+app.get('/api/tasks/stats/summary', (req, res) => {
+  res.json({
+    success: true,
+    stats: {
+      byStatus: [
+        { _id: 'pending', count: 1 },
+        { _id: 'in-progress', count: 1 }
+      ],
+      totalTasks: 2,
+      urgentTasks: 1
+    }
+  });
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
     success: false,
-    message: 'API endpoint not found: ' + req.originalUrl
+    message: 'API endpoint not found: ' + req.originalUrl,
+    availableEndpoints: [
+      'GET /',
+      'GET /api/health',
+      'POST /api/auth/register',
+      'POST /api/auth/login',
+      'GET /api/tasks',
+      'POST /api/tasks',
+      'PUT /api/tasks/:id',
+      'DELETE /api/tasks/:id',
+      'GET /api/tasks/stats/summary'
+    ]
   });
 });
 
