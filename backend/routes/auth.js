@@ -52,7 +52,7 @@ router.post('/register', validateRegistration, handleValidationErrors, async (re
     res.status(500).json({
       success: false,
       message: 'Server error during registration',
-      error: process.env.NODE_ENV === 'production' ? {} : error.message
+      error: error.message
     });
   }
 });
@@ -102,7 +102,7 @@ router.post('/login', validateLogin, handleValidationErrors, async (req, res) =>
     res.status(500).json({
       success: false,
       message: 'Server error during login',
-      error: process.env.NODE_ENV === 'production' ? {} : error.message
+      error: error.message
     });
   }
 });

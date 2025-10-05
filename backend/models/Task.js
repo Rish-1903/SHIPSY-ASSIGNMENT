@@ -15,18 +15,12 @@ const taskSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: {
-      values: ['pending', 'in-progress', 'completed', 'on-hold'],
-      message: 'Status must be pending, in-progress, completed, or on-hold'
-    },
+    enum: ['pending', 'in-progress', 'completed', 'on-hold'],
     default: 'pending'
   },
   priority: {
     type: String,
-    enum: {
-      values: ['low', 'medium', 'high', 'critical'],
-      message: 'Priority must be low, medium, high, or critical'
-    },
+    enum: ['low', 'medium', 'high', 'critical'],
     default: 'medium'
   },
   isUrgent: {
@@ -47,27 +41,15 @@ const taskSchema = new mongoose.Schema({
   },
   efficiencyScore: {
     type: Number,
-    default: 0,
-    min: [0, 'Efficiency score cannot be negative'],
-    max: [500, 'Efficiency score cannot exceed 500%']
+    default: 0
   },
   dueDate: {
-    type: Date,
-    validate: {
-      validator: function(date) {
-        return !date || date > new Date();
-      },
-      message: 'Due date must be in the future'
-    }
+    type: Date
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  },
-  tags: {
-    type: [String],
-    default: []
   }
 }, {
   timestamps: true
@@ -77,7 +59,7 @@ const taskSchema = new mongoose.Schema({
 taskSchema.pre('save', function(next) {
   if (this.estimatedHours > 0 && this.actualHours >= 0) {
     if (this.actualHours === 0) {
-      this.efficiencyScore = 100; // Perfect efficiency if no time spent
+      this.efficiencyScore = 100;
     } else {
       this.efficiencyScore = (this.estimatedHours / this.actualHours) * 100;
     }
@@ -89,7 +71,5 @@ taskSchema.pre('save', function(next) {
 
 // Index for better query performance
 taskSchema.index({ userId: 1, createdAt: -1 });
-taskSchema.index({ userId: 1, status: 1 });
-taskSchema.index({ userId: 1, priority: 1 });
 
 export default mongoose.model('Task', taskSchema);

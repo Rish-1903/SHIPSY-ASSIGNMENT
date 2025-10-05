@@ -4,9 +4,7 @@ import { body, validationResult } from 'express-validator';
 export const validateRegistration = [
   body('username')
     .isLength({ min: 3, max: 30 })
-    .withMessage('Username must be between 3 and 30 characters')
-    .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage('Username can only contain letters, numbers and underscores'),
+    .withMessage('Username must be between 3 and 30 characters'),
   
   body('email')
     .isEmail()
@@ -43,18 +41,22 @@ export const validateTask = [
     .withMessage('Description cannot exceed 1000 characters'),
   
   body('status')
+    .optional()
     .isIn(['pending', 'in-progress', 'completed', 'on-hold'])
     .withMessage('Invalid status value'),
   
   body('priority')
+    .optional()
     .isIn(['low', 'medium', 'high', 'critical'])
     .withMessage('Invalid priority value'),
   
   body('estimatedHours')
+    .optional()
     .isFloat({ min: 0, max: 1000 })
     .withMessage('Estimated hours must be between 0 and 1000'),
   
   body('actualHours')
+    .optional()
     .isFloat({ min: 0, max: 1000 })
     .withMessage('Actual hours must be between 0 and 1000')
 ];
