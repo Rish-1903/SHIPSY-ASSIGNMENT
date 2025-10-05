@@ -14,16 +14,36 @@ dotenv.config();
 
 const app = express();
 
-// Security Middleware
-app.use(helmet());
+// Enhanced CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'https://shipsy-assignment-nson.vercel.app',
+      'https://shipsy-assignment-five.vercel.app',
+      'https://shipsy-assignment-nson-9wj4udhxx-rishabh-dangs-projects.vercel.app'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 }));
 
+// Handle preflight requests
+app.options('*', cors());
+
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100
 });
 app.use(limiter);
@@ -35,24 +55,17 @@ app.use(express.urlencoded({ extended: true }));
 // Database connection
 const connectDB = async () => {
   try {
-    console.log('🔗 Connecting to MongoDB...');
+    console.log('🔗 Connecting to MongoDB Atlas...');
     
-    const options = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000,
-    };
-
-    const conn = await mongoose.connect(process.env.MONGODB_URI, options);
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
     
-    console.log('✅ MongoDB Connected Successfully!');
+    console.log('✅ MongoDB Atlas Connected Successfully!');
     console.log(`📊 Database: ${conn.connection.name}`);
     
     return conn;
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error.message);
-    console.log('\n💡 Make sure MongoDB is running:');
-    console.log('   docker run -d -p 27017:27017 --name mongodb mongo:latest');
+    console.log('💡 Check your MongoDB Atlas connection string and network access');
     process.exit(1);
   }
 };
@@ -62,6 +75,7 @@ app.get('/', (req, res) => {
   res.json({ 
     message: '🚀 Task Manager API is running!',
     version: '1.0.0',
+    environment: process.env.NODE_ENV,
     database: mongoose.connection.readyState === 1 ? '✅ Connected' : '❌ Disconnected',
     timestamp: new Date().toISOString()
   });
@@ -72,6 +86,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
     message: 'Task Manager API is running',
+    environment: process.env.NODE_ENV,
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString()
   });
@@ -109,6 +124,14 @@ app.use((err, req, res, next) => {
     });
   }
 
+  // CORS errors
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'CORS policy violation'
+    });
+  }
+
   res.status(500).json({ 
     success: false,
     message: 'Something went wrong!',
@@ -132,9 +155,7 @@ const startServer = async () => {
     await connectDB();
     
     app.listen(PORT, () => {
-      console.log(`\n🎉 Server running on port ${PORT}`);
-      console.log(`🌐 URL: http://localhost:${PORT}`);
-      console.log(`📊 Database: ${mongoose.connection.readyState === 1 ? '✅ Connected' : '❌ Disconnected'}`);
+      console.log(`\n🎉 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
