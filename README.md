@@ -94,5 +94,21 @@ SHIPSY-ASSIGNMENT/
   updatedAt: Date
 }
 ```
-
-
+## Task Collection
+```javascript
+{
+  _id: ObjectId,
+  title: String (required, max: 100 chars),
+  description: String (required, max: 1000 chars),
+  status: String (enum: ['pending', 'in-progress', 'completed', 'on-hold']),
+  priority: String (enum: ['low', 'medium', 'high', 'critical']),
+  isUrgent: Boolean (default: false),
+  estimatedHours: Number (min: 0, max: 1000),
+  actualHours: Number (min: 0, max: 1000),
+  efficiencyScore: Number (calculated automatically),
+  dueDate: Date (optional),
+  userId: String (required),
+  createdAt: Date,
+  updatedAt: Date
+}
+```
