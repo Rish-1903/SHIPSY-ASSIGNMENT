@@ -1,7 +1,7 @@
 # 🔌 API Documentation
 
 ## Authentication Endpoints
-### Register a new user account.
+## Register a new user account.
 bash 
 ```
 POST /api/auth/register
