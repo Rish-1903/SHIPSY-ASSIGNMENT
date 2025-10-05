@@ -66,7 +66,8 @@ GET /api/tasks
     search - Search in title/description
 
 ### Response:
-json
+bash
+```
 
 {
   "success": true,
@@ -79,7 +80,7 @@ json
     "hasPrev": false
   }
 }
-
+```
 
 
 ## Create a new task.
